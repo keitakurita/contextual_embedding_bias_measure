@@ -1,0 +1,2 @@
+train_file: "gender_occ_neg_w_probs_train.txt"
+val_file: "gender_occ_neg_w_probs_val.txt"

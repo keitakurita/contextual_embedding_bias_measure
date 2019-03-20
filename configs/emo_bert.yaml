@@ -1,0 +1,3 @@
+train_file: "gender_emo_w_probs_train.txt"
+val_file: "gender_emo_w_probs_val.txt"
+lr: 0.00001
