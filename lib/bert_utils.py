@@ -32,6 +32,9 @@ def flatten(x: List[List[T]]) -> List[T]:
 def spacy_tok(s: str) -> List[str]:
     return [w.text for w in nlp(s)]
 
+class TokenizationError(Exception):
+    pass
+
 class BertPreprocessor:
     def __init__(self, model_type: str, max_seq_len: int=128):
         self.model_type = model_type
@@ -57,11 +60,25 @@ class BertPreprocessor:
     def indices_to_tokens(self, indices: Iterable[int]) -> List[str]:
         return [self.index_to_word(x) for x in indices]
 
-    def token_to_index(self, token: str) -> int:
+    def token_to_index(self, token: str,
+                      accept_wordpiece: bool=False,
+                      ) -> int:
+        wordpieces = self.tokenize(token)
+        if len(wordpieces) > 1 and not accept_wordpiece:
+            raise TokenizationError(f"{token} is not a single wordpiece")
+        else: token = wordpieces[0].text
         return self.token_indexer.vocab[token]
 
-    def get_index(self, sentence: str, word: str, last: bool=False) -> int:
+    def get_index(self, sentence: str,
+                  word: str,
+                  accept_wordpiece: bool=False,
+                  last: bool=False) -> int:
         toks = self.tokenize(sentence)
+        wordpieces = self.tokenize(word)
+        if len(wordpieces) > 1 and not accept_wordpiece:
+            raise TokenizationError(f"{word} is not a single wordpiece")
+        else: word = wordpieces[0].text # use first wordpiece
+
         if not last:
             for i, t in enumerate(toks):
                 if t.text == word:
